@@ -9,24 +9,33 @@ function MainScene:ctor()
     self.m_sprites = {}
     self.m_activeSprites = {}
     
-    -- 5行5列
+    -- 8行8列
     self.m_row = 8
     self.m_col = 8
     self.m_spriteNumber = 8
     
+    -- 添加背景精灵
     display.newSprite("background.png", display.cx, display.cy):addTo(self)
     display.addSpriteFrames("fruit.plist", "fruit.pvr.ccz")
+
+    -- 添加精灵层
     self.m_playLayer = display.newLayer()
     self.m_playLayer:setContentSize(display.width, display.height)
     self.m_playLayer:ignoreAnchorPointForPosition(false)
+
+    -- 将精灵层设置为中间位置
     self.m_playLayer:pos(display.cx, display.cy)
     self:add(self.m_playLayer)
 
+    -- 初始化地图
     self:initSprites()
+
+    -- 增加触摸事件
     self:initEvents()
 end
 
 function MainScene:initEvents()
+    self:setTouchEnabled(true)
     self.m_playLayer:addNodeEventListener(cc.NODE_TOUCH_EVENT, handler(self, self.touchCell))
 end
 
@@ -35,13 +44,11 @@ end
 ]]
 function MainScene:initSprites()
     -- 生成一半的精灵
-    for row = 1, self.m_row do
-        for col = 1, self.m_col/2 do
-            math.newrandomseed()
-            local type = math.random(1, self.m_spriteNumber)
-        	local sprite = SpriteItem.new(type)
-        	table.insert(self.m_sprites, sprite)
-        end
+    for i = 1, self.m_row * self.m_col / 2 do
+        math.newrandomseed()
+        local type = math.random(1, self.m_spriteNumber)
+    	local sprite = SpriteItem.new(type)
+    	table.insert(self.m_sprites, sprite)
     end
 
     -- 拷贝到另外一半
@@ -53,7 +60,7 @@ function MainScene:initSprites()
     
     -- 随机打乱顺序
     for seq = 1, 13*2 do
-
+        math.newrandomseed()
         for i = 1, #self.m_sprites do
             local row_org = math.random(1, self.m_row)
             local col_org = math.random(1, self.m_col)
@@ -77,11 +84,6 @@ function MainScene:initSprites()
             sprite:setRowAndCol(row, col)
             self.m_playLayer:addChild(sprite)
         end
-    end
-    
-    -- 为了方便计算消除，添加空的行和列
-    for col = 1, self.m_col do
-        table.insert(self.m_sprites, nil)
     end
     
     local size = SpriteItem:getContentSize()
